@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>CWU 유학생 설문 2026 · 통계 대시보드</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<style>
+:root{
+  --bg:#060d1f;--card:#0d1b2e;--primary:#60a5fa;--accent:#fbbf24;
+  --green:#34d399;--red:#f87171;--purple:#a78bfa;--pink:#f472b6;--teal:#2dd4bf;--orange:#fb923c;
+  --text:#f0f6ff;--muted:#8899bb;--border:#1e3050;--font:'Noto Sans KR',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--font)}
+.hdr{background:linear-gradient(135deg,#040d1e,#0d1f3c);border-bottom:1px solid var(--border);padding:0 24px}
+.hdr-in{max-width:1700px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:58px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-ico{width:32px;height:32px;background:linear-gradient(135deg,var(--primary),var(--purple));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.brand-title{font-size:15px;font-weight:800}.brand-sub{font-size:10px;color:var(--muted);margin-top:1px}
+.hdr-right{display:flex;align-items:center;gap:8px}
+.live{background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.25);color:var(--green);border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700;display:flex;align-items:center;gap:4px}
+.live-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:blink 1.4s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.upd{font-size:10px;color:var(--muted)}
+.btn{border:1px solid rgba(96,165,250,.25);border-radius:7px;padding:5px 11px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--font);background:rgba(96,165,250,.1);color:var(--primary);transition:all .2s}
+.btn:hover{background:rgba(96,165,250,.22)}
+.hero{background:linear-gradient(135deg,#040d1e,#0a1a38);border-bottom:1px solid var(--border);padding:18px 24px}
+.hero-in{max-width:1700px;margin:0 auto}
+.hero-ttl{font-size:18px;font-weight:900;background:linear-gradient(135deg,#f0f6ff,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:2px}
+.hero-sub{font-size:10px;color:var(--muted);margin-bottom:14px}
+.kpi-row{display:grid;grid-template-columns:repeat(8,1fr);gap:8px}
+@media(max-width:1400px){.kpi-row{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:700px){.kpi-row{grid-template-columns:repeat(2,1fr)}}
+.kpi{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:11px;padding:12px;position:relative;overflow:hidden;transition:transform .2s}
+.kpi:hover{transform:translateY(-2px)}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:2px 2px 0 0}
+.kpi.c1::before{background:var(--primary)}.kpi.c2::before{background:var(--green)}
+.kpi.c3::before{background:var(--accent)}.kpi.c4::before{background:var(--purple)}
+.kpi.c5::before{background:var(--pink)}.kpi.c6::before{background:var(--teal)}
+.kpi.c7::before{background:var(--orange)}.kpi.c8::before{background:#4ade80}
+.kpi.c9::before{background:#e879f9}.kpi.c10::before{background:#38bdf8}
+.kpi-ico{font-size:15px;margin-bottom:4px}.kpi-val{font-size:22px;font-weight:900;line-height:1}
+.kpi-lbl{font-size:10px;color:var(--muted);margin-top:3px}.kpi-note{font-size:9px;color:var(--muted);margin-top:1px}
+.tab-bar{background:var(--card);border-bottom:1px solid var(--border);padding:0 24px;display:flex;overflow-x:auto;scrollbar-width:none;position:sticky;top:0;z-index:100}
+.tab-bar::-webkit-scrollbar{display:none}
+.tab{padding:12px 14px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s}
+.tab:hover{color:var(--text)}.tab.active{color:var(--primary);border-bottom-color:var(--primary)}
+.tc{display:none;max-width:1700px;margin:0 auto;padding:16px 24px}.tc.active{display:block}
+.sec-hdr{font-size:11px;font-weight:800;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin:18px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.sec-hdr:first-child{margin-top:0}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:12px}
+@media(max-width:1200px){.g3,.g4{grid-template-columns:1fr 1fr}}
+@media(max-width:700px){.g2,.g3,.g4{grid-template-columns:1fr}}
+.mb{margin-bottom:12px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;transition:border-color .2s}
+.card:hover{border-color:rgba(96,165,250,.2)}
+.ct{font-size:12px;font-weight:700;color:var(--text);margin-bottom:2px}
+.cs{font-size:10px;color:var(--muted);margin-bottom:10px}
+.cbox{position:relative}
+.h150{height:150px}.h180{height:180px}.h200{height:200px}.h220{height:220px}
+.h250{height:250px}.h270{height:270px}.h300{height:300px}
+.nps-wrap{display:grid;grid-template-columns:1fr 2fr;gap:12px;align-items:start}
+.nps-score-box{text-align:center;padding:8px}
+.nps-big{font-size:48px;font-weight:900;line-height:1}
+.nps-lbl{font-size:10px;color:var(--muted);margin-top:3px}
+.nps-cats{display:flex;border-radius:8px;overflow:hidden;margin-top:10px}
+.nps-cat{flex:1;padding:7px 4px;text-align:center}
+.nps-cat-v{font-size:15px;font-weight:800}.nps-cat-l{font-size:9px;margin-top:2px;opacity:.7}
+.nps-pro{background:rgba(52,211,153,.12);color:var(--green)}
+.nps-pas{background:rgba(251,191,36,.1);color:var(--accent)}
+.nps-det{background:rgba(248,113,113,.1);color:var(--red)}
+.rl{display:flex;flex-direction:column;gap:7px;margin-top:4px}
+.rr{display:flex;align-items:center;gap:8px}
+.rn{width:20px;height:20px;border-radius:50%;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.r1{background:var(--accent);color:#000}.r2{background:#6b7280;color:#fff}
+.r3{background:#92400e;color:#fff}.r4,.r5,.r6{background:var(--border);color:var(--muted)}
+.ri{flex:1}.rlbl{font-size:11px;color:var(--text);margin-bottom:2px;font-weight:500}
+.rbar{height:5px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden}
+.rfill{height:100%;border-radius:3px;transition:width 1s cubic-bezier(.4,0,.2,1)}
+.rcnt{font-size:11px;color:var(--muted);min-width:28px;text-align:right;font-weight:600}
+.wg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:6px}
+.wi{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:9px;padding:8px 4px;text-align:center}
+.we{font-size:20px;display:block;margin-bottom:2px}
+.wl{font-size:9px;color:var(--muted);display:block;margin-bottom:2px}.wp{font-size:13px;font-weight:800}
+.sl{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+.slbl{font-size:10px;color:var(--text);margin-bottom:4px;font-weight:500;line-height:1.4}
+.sbar{display:flex;height:20px;border-radius:5px;overflow:hidden;gap:2px}
+.sseg{display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;border-radius:3px;min-width:0;overflow:hidden;transition:width 1s}
+.sa{background:var(--green)}.spt{background:var(--accent)}.sd{background:var(--red)}
+.sleg{display:flex;gap:10px;font-size:10px;color:var(--muted);margin-top:6px;flex-wrap:wrap}
+.sdot{width:8px;height:8px;border-radius:2px;display:inline-block;margin-right:3px;vertical-align:middle}
+.ins{background:rgba(96,165,250,.07);border:1px solid rgba(96,165,250,.18);border-radius:10px;padding:12px;margin-top:8px}
+.ins-ttl{font-size:11px;font-weight:700;color:var(--primary);margin-bottom:3px}
+.ins-txt{font-size:10px;color:var(--muted);line-height:1.6}
+.life-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-top:8px}
+.life-item{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:9px;padding:10px 6px;text-align:center}
+.life-emoji{font-size:17px;display:block;margin-bottom:4px}
+.life-val{font-size:17px;font-weight:900}.life-lbl{font-size:9px;color:var(--muted);margin-top:3px}
+.gauge-wrap{display:flex;align-items:center;justify-content:center;flex-direction:column;height:150px;gap:5px}
+.gauge-val{font-size:50px;font-weight:900;line-height:1;color:var(--primary)}
+.gauge-lbl{font-size:10px;color:var(--muted)}
+.gauge-bar{width:100%;height:8px;background:rgba(255,255,255,.07);border-radius:4px;overflow:hidden;margin-top:4px}
+.gauge-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#f87171,#fbbf24,#34d399);transition:width 1s}
+/* 주관식 */
+.qfilter{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
+.qf-btn{border:1px solid var(--border);border-radius:20px;padding:5px 13px;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted);transition:all .2s;font-family:var(--font)}
+.qf-btn:hover{border-color:var(--primary);color:var(--primary)}
+.qf-btn.on{background:rgba(96,165,250,.15);border-color:var(--primary);color:var(--primary)}
+.qlist{display:flex;flex-direction:column;gap:10px}
+.qitem{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.qitem-hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;cursor:pointer;user-select:none}
+.qitem-hdr:hover{background:rgba(255,255,255,.03)}
+.qitem-q{font-size:12px;font-weight:700;color:var(--text)}
+.qitem-meta{font-size:10px;color:var(--muted);margin-top:2px}
+.qitem-cnt{font-size:11px;color:var(--accent);font-weight:700;flex-shrink:0;margin-left:10px}
+.qitem-arr{font-size:12px;color:var(--muted);margin-left:8px;transition:transform .3s}
+.qitem.open .qitem-arr{transform:rotate(180deg)}
+.qitem-body{display:none;padding:0 16px 16px;border-top:1px solid var(--border)}
+.qitem.open .qitem-body{display:block}
+.ans-list{display:flex;flex-direction:column;gap:7px;margin-top:10px;max-height:400px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.ans-list::-webkit-scrollbar{width:4px}
+.ans-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.ans-item{background:rgba(255,255,255,.03);border:1px solid var(--border);border-left:3px solid rgba(96,165,250,.4);border-radius:0 8px 8px 0;padding:9px 12px;font-size:11px;line-height:1.65;color:var(--text)}
+.ans-flag{font-size:10px;color:var(--muted);margin-top:5px;display:flex;gap:8px}
+.ans-empty{text-align:center;padding:24px;color:var(--muted);font-size:11px}
+.qsearch{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:9px 14px;font-size:12px;color:var(--text);font-family:var(--font);margin-bottom:14px}
+.qsearch:focus{outline:none;border-color:var(--primary)}
+.qsearch::placeholder{color:var(--muted)}
+.qpager{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:11px;color:var(--muted)}
+.qpager button{border:1px solid var(--border);background:transparent;color:var(--muted);border-radius:5px;padding:3px 9px;cursor:pointer;font-family:var(--font);font-size:10px;transition:all .2s}
+.qpager button:hover:not([disabled]){border-color:var(--primary);color:var(--primary)}
+.qpager button[disabled]{opacity:.3;cursor:default}
+.lov{position:fixed;inset:0;background:rgba(6,13,31,.93);display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:12px}
+.spin{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.lt{font-size:12px;color:var(--muted)}
+@media(max-width:600px){.brand-sub{display:none}.tab{padding:10px 9px;font-size:11px}.tc{padding:10px 12px}.kpi-val{font-size:19px}}
+</style>
+</head>
+<body>
+<div class="lov" id="lov"><div class="spin"></div><div class="lt">데이터 불러오는 중...</div></div>
+<div class="hdr"><div class="hdr-in">
+  <div class="brand"><div class="brand-ico">📊</div><div><div class="brand-title">CWU 유학생 설문 2026</div><div class="brand-sub">Chungwoon University · RISE 사업단 통계 대시보드</div></div></div>
+  <div class="hdr-right"><div class="live"><div class="live-dot"></div>LIVE</div><span class="upd" id="upd">—</span><button class="btn" onclick="load()">🔄 새로고침</button></div>
+</div></div>
+
+<div class="hero"><div class="hero-in">
+  <div class="hero-ttl">유학생 실태 분석 리포트</div>
+  <div class="hero-sub">설문 응답 기반 · Chungwoon University 외국인 유학생 현황</div>
+  <div class="kpi-row">
+    <div class="kpi c1"><div class="kpi-ico">📋</div><div class="kpi-val" id="k-total">—</div><div class="kpi-lbl">총 응답자</div></div>
+    <div class="kpi c2"><div class="kpi-ico">☀️</div><div class="kpi-val" id="k-today">—</div><div class="kpi-lbl">오늘 응답</div></div>
+    <div class="kpi c3"><div class="kpi-ico">📅</div><div class="kpi-val" id="k-7d">—</div><div class="kpi-lbl">최근 7일</div></div>
+    <div class="kpi c4"><div class="kpi-ico">⭐</div><div class="kpi-val" id="k-nps-avg">—</div><div class="kpi-lbl">평균 NPS<div class="kpi-note">0~10점</div></div></div>
+
+    <div class="kpi c7"><div class="kpi-ico">🏅</div><div class="kpi-val" id="k-rise">—</div><div class="kpi-lbl">RISE 참여율</div></div>
+    <div class="kpi c8"><div class="kpi-ico">💬</div><div class="kpi-val" id="k-comm">—</div><div class="kpi-lbl">교수 소통<div class="kpi-note">1~10 평균</div></div></div>
+    <div class="kpi c9"><div class="kpi-ico">🌟</div><div class="kpi-val" id="k-rise-sat">—</div><div class="kpi-lbl">RISE 만족도<div class="kpi-note">1~10 평균</div></div></div>
+    <div class="kpi c10"><div class="kpi-ico">💡</div><div class="kpi-val" id="k-expect">—</div><div class="kpi-lbl">기대vs현실<div class="kpi-note">1~10 평균</div></div></div>
+  </div>
+</div></div>
+
+<div class="tab-bar">
+  <div class="tab active" onclick="sw('ov',this)">🌍 개요</div>
+  <div class="tab" onclick="sw('ac',this)">🎓 학업</div>
+  <div class="tab" onclick="sw('lf',this)">🌦️ 생활·적응</div>
+  <div class="tab" onclick="sw('ca',this)">🚀 진로·비전</div>
+  <div class="tab" onclick="sw('ri',this)">🏅 RISE</div>
+  <div class="tab" onclick="sw('bl',this)">🔍 편견 검증</div>
+  <div class="tab" onclick="sw('wr',this)">✍️ 주관식 응답</div>
+</div>
+
+<!-- 개요 -->
+<div class="tc active" id="tab-ov">
+  <div class="sec-hdr">기본 정보 (Q1~Q7)</div>
+  <div class="g4">
+    <div class="card"><div class="ct">🌍 국적 분포</div><div class="cs">Q1 · 출신 국가별</div><div class="cbox h200"><canvas id="c-nat"></canvas></div></div>
+    <div class="card"><div class="ct">🎓 소속 학과</div><div class="cs">Q2 · 전공별 분포</div><div class="cbox h200"><canvas id="c-dep"></canvas></div></div>
+    <div class="card"><div class="ct">📅 입학 시기</div><div class="cs">Q3 · 학기별 입학 분포</div><div class="cbox h200"><canvas id="c-enr"></canvas></div></div>
+    <div class="card"><div class="ct">📋 비자 유형</div><div class="cs">Q4 · 체류 비자 분포</div><div class="cbox h200"><canvas id="c-vis"></canvas></div></div>
+  </div>
+  <div class="g4">
+    <div class="card"><div class="ct">💰 생활비 수준</div><div class="cs">Q5 · 월 평균 생활비</div><div class="cbox h180"><canvas id="c-bud"></canvas></div></div>
+    <div class="card"><div class="ct">🏅 장학금 현황</div><div class="cs">Q6 · 수혜 여부</div><div class="cbox h180"><canvas id="c-sch"></canvas></div></div>
+    <div class="card"><div class="ct">💼 아르바이트</div><div class="cs">Q7 · 취업 활동 분포</div><div class="cbox h180"><canvas id="c-pt"></canvas></div></div>
+    <div class="card"><div class="ct">🌐 응답 언어</div><div class="cs">설문 응답 언어 분포</div><div class="cbox h180"><canvas id="c-lan"></canvas></div></div>
+  </div>
+  <div class="g4">
+    <div class="card"><div class="ct">🦅 WARM-UP 동물 유형</div><div class="cs">나를 표현하는 동물</div><div class="cbox h180"><canvas id="c-ani"></canvas></div></div>
+    <div class="card"><div class="ct">🎯 기대 vs 현실</div><div class="cs">Q10 · 유학 전 기대 대비 실제 (1~10)</div>
+      <div class="gauge-wrap"><div class="gauge-val" id="expect-real-val">—</div><div class="gauge-lbl">평균 점수 (1=실망 · 10=기대 이상)</div><div class="gauge-bar" style="margin-top:6px"><div class="gauge-fill" id="expect-real-fill" style="width:0%"></div></div></div>
+    </div>
+    <div class="card"><div class="ct">💬 교수 소통 점수 분포</div><div class="cs">Q13 · 소통 점수 히스토그램 (1~10)</div><div class="cbox h180"><canvas id="c-comm-dist"></canvas></div></div>
+    <div class="card"><div class="ct">📊 수업 이해도 요약</div><div class="cs">Q12 · 이해 수준별 비율</div><div class="cbox h180"><canvas id="c-comp-sm"></canvas></div></div>
+  </div>
+  <div class="sec-hdr">응답 추이 &amp; NPS</div>
+  <div class="g2">
+    <div class="card"><div class="ct">📈 일별 응답 추이</div><div class="cs">날짜별 설문 제출 수 (최근 14일)</div><div class="cbox h200"><canvas id="c-tl"></canvas></div></div>
+    <div class="card"><div class="ct">📊 NPS 분포 &amp; 분류</div><div class="cs">Q35 · 0~10점 히스토그램</div>
+      <div class="nps-wrap">
+        <div class="nps-score-box"><div class="nps-big" id="nps-big">—</div><div class="nps-lbl">평균 점수 (0~10)</div>
+          <div class="nps-cats">
+            <div class="nps-cat nps-pro"><div class="nps-cat-v" id="nps-pr">—</div><div class="nps-cat-l">추천자<br>9~10</div></div>
+            <div class="nps-cat nps-pas"><div class="nps-cat-v" id="nps-pa">—</div><div class="nps-cat-l">중립<br>7~8</div></div>
+            <div class="nps-cat nps-det"><div class="nps-cat-v" id="nps-de">—</div><div class="nps-cat-l">비추천<br>0~6</div></div>
+          </div>
+        </div>
+        <div class="cbox" style="height:160px"><canvas id="c-nps"></canvas></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 학업 -->
+<div class="tc" id="tab-ac">
+  <div class="sec-hdr">수업 경험 (Q12~Q15)</div>
+  <div class="g4">
+    <div class="card"><div class="ct">📖 수업 이해도</div><div class="cs">Q12 · 전반적 이해 수준</div><div class="cbox h200"><canvas id="c-comp"></canvas></div></div>
+    <div class="card"><div class="ct">👨‍🏫 교수님 유형</div><div class="cs">Q14 · 다문화 이해 수준 유형</div><div class="cbox h200"><canvas id="c-prof"></canvas></div></div>
+    <div class="card"><div class="ct">📚 선호 수업 방식</div><div class="cs">Q15 · 효과적 수업 유형 (복수)</div><div class="cbox h200"><canvas id="c-cls"></canvas></div></div>
+    <div class="card"><div class="ct">💬 교수 소통 점수 분포</div><div class="cs">Q13 · 1~10점 히스토그램</div><div class="cbox h200"><canvas id="c-comm2"></canvas></div></div>
+  </div>
+  <div class="sec-hdr">행정·제도 개선 (Q16)</div>
+  <div class="g2">
+    <div class="card"><div class="ct">🏛️ 행정 개선 1순위 TOP 6</div><div class="cs">Q16 · 가장 시급한 항목</div><div class="rl" id="rl-adm" style="margin-top:6px"></div></div>
+    <div class="card"><div class="ct">🏛️ 행정 불편 1~3순위 비교</div><div class="cs">Q16 · 순위별 응답 패턴 누적 비교</div><div class="cbox h270"><canvas id="c-adm-m"></canvas></div></div>
+  </div>
+</div>
+
+<!-- 생활·적응 -->
+<div class="tc" id="tab-lf">
+  <div class="sec-hdr">어려움 분석 (Q19~Q21)</div>
+  <div class="g2">
+    <div class="card"><div class="ct">🌦️ 마음의 날씨 — 힘든 것 1순위</div><div class="cs">Q19 · 가장 큰 유학 어려움</div><div class="wg" id="wg"></div></div>
+    <div class="card"><div class="ct">🔍 어려움의 근본 원인</div><div class="cs">Q20 · 힘든 것의 핵심 원인</div><div class="cbox h220"><canvas id="c-dc"></canvas></div></div>
+  </div>
+  <div class="card mb"><div class="ct">🌦️ 어려움 1~3순위 비교</div><div class="cs">Q19 · 순위별 어려움 패턴 비교</div><div class="cbox h260"><canvas id="c-dif-m"></canvas></div></div>
+  <div class="card mb"><div class="ct">🌬️ 문화 적응 어려움</div><div class="cs">Q21 · 적응하기 어려운 한국 문화 (복수)</div><div class="cbox h220"><canvas id="c-cult"></canvas></div></div>
+  <div class="sec-hdr">생활 만족도 (Q18)</div>
+  <div class="g2">
+    <div class="card"><div class="ct">⭐ 생활 만족도 항목별 평균</div><div class="cs">Q18 · 1~5점 · 기숙사·식사·교통·안전·학교지원</div>
+      <div class="life-grid" id="life-grid"></div>
+      <div class="cbox h200" style="margin-top:12px"><canvas id="c-radar"></canvas></div>
+    </div>
+    <div class="card"><div class="ct">📊 만족도 항목별 막대 비교</div><div class="cs">Q18 · 5개 항목 평균 점수 시각화</div><div class="cbox h300"><canvas id="c-life-bar"></canvas></div></div>
+  </div>
+</div>
+
+<!-- 진로·비전 -->
+<div class="tc" id="tab-ca">
+  <div class="sec-hdr">유학 동기 (Q8~Q9)</div>
+  <div class="g2">
+    <div class="card"><div class="ct">🌏 한국 선택 이유</div><div class="cs">Q8 · 한국 유학지 선택 이유 (복수)</div><div class="cbox h250"><canvas id="c-krr"></canvas></div></div>
+    <div class="card"><div class="ct">🏫 Chungwoon 선택 이유</div><div class="cs">Q9 · CWU 선택 이유 (복수)</div><div class="cbox h250"><canvas id="c-cwr"></canvas></div></div>
+  </div>
+  <div class="sec-hdr">졸업 후 진로 (Q23~Q25)</div>
+  <div class="g3">
+    <div class="card"><div class="ct">🗺️ 졸업 후 계획</div><div class="cs">Q23 · 진로 방향 분포</div><div class="cbox h240"><canvas id="c-ag"></canvas></div></div>
+    <div class="card"><div class="ct">💼 희망 직종·분야</div><div class="cs">Q24 · 관심 직업 분야 (복수)</div><div class="cbox h240"><canvas id="c-jf"></canvas></div></div>
+    <div class="card"><div class="ct">🎮 취업 필요 역량 순위</div><div class="cs">Q25 · 가장 필요한 스킬 TOP 6</div><div class="rl" id="rl-sk" style="margin-top:6px"></div></div>
+  </div>
+  <div class="sec-hdr">유학 영향 &amp; 학교 요구 (Q27~Q31)</div>
+  <div class="g4">
+    <div class="card"><div class="ct">🚀 유학이 인생에 미칠 영향</div><div class="cs">Q31 · 가장 큰 기대 효과</div><div class="cbox h220"><canvas id="c-imp"></canvas></div></div>
+    <div class="card"><div class="ct">🎓 희망 지원 프로그램</div><div class="cs">Q27 · 학교에 바라는 프로그램 (복수)</div><div class="cbox h220"><canvas id="c-pgm"></canvas></div></div>
+    <div class="card"><div class="ct">⚡ 즉시 바꿔야 할 것</div><div class="cs">Q28 · 가장 시급한 학교 개선</div><div class="cbox h220"><canvas id="c-urg"></canvas></div></div>
+    <div class="card"><div class="ct">📊 취업 역량 필요도 비교</div><div class="cs">Q25 · 항목별 응답 수 막대</div><div class="cbox h220"><canvas id="c-sk-bar"></canvas></div></div>
+  </div>
+</div>
+
+<!-- RISE -->
+<div class="tc" id="tab-ri">
+  <div class="sec-hdr">참여 현황 (Q37~Q39)</div>
+  <div class="g3">
+    <div class="card"><div class="ct">🏅 참여 현황</div><div class="cs">Q37 · 참여/미참여/미인지</div><div class="cbox h200"><canvas id="c-rp"></canvas></div></div>
+    <div class="card"><div class="ct">📊 RISE 만족도 분포</div><div class="cs">Q39 · 전반 만족도 1~10</div><div class="cbox h200"><canvas id="c-rs"></canvas></div></div>
+    <div class="card"><div class="ct">✨ 참여 프로그램</div><div class="cs">Q38 · 어떤 프로그램에 참여했는지</div><div class="cbox h200"><canvas id="c-rpr"></canvas></div></div>
+  </div>
+  <div class="sec-hdr">개선 희망 &amp; 직무교육 (Q41~Q42)</div>
+  <div class="g3">
+    <div class="card"><div class="ct">🔧 RISE 개선 희망 사항</div><div class="cs">Q41 · 더 원하거나 개선될 것 (복수)</div><div class="cbox h220"><canvas id="c-ri41"></canvas></div></div>
+    <div class="card"><div class="ct">💼 직무교육 방향 희망</div><div class="cs">Q42dir · 어떤 방향의 직무교육 (복수)</div><div class="cbox h220"><canvas id="c-rd"></canvas></div></div>
+    <div class="card"><div class="ct">📈 직무교육 도움도</div><div class="cs">Q42 · 한국어·실무기술·취업자신감 평균 (5점)</div><div class="cbox h220"><canvas id="c-ri42"></canvas></div></div>
+  </div>
+  <div class="sec-hdr">미참여 원인 &amp; 향후 관심 (Q43~Q44)</div>
+  <div class="g2">
+    <div class="card"><div class="ct">🔍 미참여 이유</div><div class="cs">Q43 · 참여 못 한 주요 원인</div><div class="cbox h220"><canvas id="c-rn"></canvas></div></div>
+    <div class="card"><div class="ct">🎯 향후 참여 희망 프로그램</div><div class="cs">Q44 · 앞으로 참여하고 싶은 프로그램</div><div class="cbox h220"><canvas id="c-rw"></canvas></div></div>
+  </div>
+</div>
+
+<!-- 편견 검증 -->
+<div class="tc" id="tab-bl">
+  <div class="sec-hdr">5대 편견 검증 (Q30)</div>
+  <div class="card mb">
+    <div class="ct">🔍 5대 편견 — 동의/부분/반대 분포</div><div class="cs">기존 한국 사회의 유학생 편견이 실제로 맞는지 검증</div>
+    <div class="sleg" style="margin-bottom:10px">
+      <span><span class="sdot" style="background:var(--green)"></span>나에게 맞다</span>
+      <span><span class="sdot" style="background:var(--accent)"></span>일부 맞다</span>
+      <span><span class="sdot" style="background:var(--red)"></span>아니다</span>
+    </div>
+    <div class="sl" id="bl-stacks"></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="ct">📊 편견별 동의율 비교</div><div class="cs">"나에게 맞다"고 답한 비율</div><div class="cbox h280"><canvas id="c-bla"></canvas></div></div>
+    <div class="card"><div class="ct">💡 연구 인사이트</div><div class="cs">편견 검증 분석 결과</div><div id="bl-ins" style="margin-top:6px"></div></div>
+  </div>
+</div>
+
+<!-- 주관식 응답 -->
+<div class="tc" id="tab-wr">
+  <div class="sec-hdr">주관식 응답 뷰어 — 9개 문항 전체</div>
+  <input class="qsearch" id="qsearch" type="text" placeholder="🔍 응답 내용으로 검색... (예: 장학금, 기숙사, 취업, 친구)">
+  <div class="qfilter" id="qfilter">
+    <button class="qf-btn on" onclick="qfSet('all',this)">전체 보기</button>
+    <button class="qf-btn" onclick="qfSet('q11',this)">Q11 CWU 선택 이유</button>
+    <button class="qf-btn" onclick="qfSet('q17',this)">Q17 수업 솔직 의견</button>
+    <button class="qf-btn" onclick="qfSet('q22',this)">Q22 문화 차이 경험</button>
+    <button class="qf-btn" onclick="qfSet('q26',this)">Q26 5년 후 비전</button>
+    <button class="qf-btn" onclick="qfSet('q29',this)">Q29 CWU 강점 제안</button>
+    <button class="qf-btn" onclick="qfSet('q34',this)">Q34 학교에 하고 싶은 말</button>
+    <button class="qf-btn" onclick="qfSet('q36',this)">Q36 NPS 이유</button>
+    <button class="qf-btn" onclick="qfSet('q40',this)">Q40 RISE 기억</button>
+    <button class="qf-btn" onclick="qfSet('q45',this)">Q45 필요한 교육·지원</button>
+  </div>
+  <div class="qlist" id="qlist"><div class="ans-empty">데이터를 불러오는 중...</div></div>
+</div>
+
+<div style="text-align:center;padding:14px;color:var(--muted);font-size:10px;border-top:1px solid var(--border)">
+  Chungwoon University RISE 사업단 · 유학생 설문 통계 대시보드 2026 · 30초 자동 새로고침
+</div>
+
+<script>
+var GAS='https://script.google.com/macros/s/AKfycbyFh3gf9O4UDiDC2OZVOEiyCT98hMlwaHo8SQSIefgWdbhIZkOay5q8B34wwaN-xmQa/exec';
+var CI={},GDATA=null;
+var PAL=['#60a5fa','#34d399','#fbbf24','#a78bfa','#f472b6','#2dd4bf','#fb923c','#4ade80','#f87171','#38bdf8','#c084fc','#86efac'];
+var L={
+  nat:{nepal:'🇳🇵 네팔',vietnam:'🇻🇳 베트남',kyrgyzstan:'🇰🇬 키르기스스탄',bangladesh:'🇧🇩 방글라데시',kazakhstan:'🇰🇿 카자흐스탄',uzbekistan:'🇺🇿 우즈베키스탄',other:'기타'},
+  dep:{aviation:'항공서비스경영',service:'서비스경영',korean:'글로벌한국학',media:'미디어커뮤니케이션','other-dept':'기타'},
+  enr:{'2024-09':'2024년 9월','2025-03':'2025년 3월','2025-09':'2025년 9월','2026-03':'2026년 3월'},
+  lan:{ko:'🇰🇷 한국어',en:'🇺🇸 English',vi:'🇻🇳 Tiếng Việt',ru:'🇷🇺 Русский',bn:'🇧🇩 বাংলা'},
+  ani:{eagle:'🦅 독수리',dolphin:'🐬 돌고래',owl:'🦉 부엉이',lion:'🦁 사자',butterfly:'🦋 나비'},
+  bud:{'under50':'50만원 미만','50-80':'50~80만원','80-120':'80~120만원','over120':'120만원+'},
+  sch:{'full-scholarship':'전액 장학','partial-scholarship':'부분 장학','no-scholarship':'없음','applying':'신청 예정'},
+  pt:{'yes-main':'알바 주수입','yes-extra':'용돈 보충','no-want':'못함(원함)','no-focus':'안함(학업)'},
+  vis:{'D-2':'D-2 유학','D-4':'D-4 어학','F':'F 계열','other-visa':'기타'},
+  comp:{'90+':'90% 이상','70-90':'70~90%','50-70':'50~70%','under50':'50% 미만'},
+  prof:{'1':'😐 무관심형','2':'🙂 친절형','3':'🤝 배려형','4':'🌏 다문화 챔피언'},
+  cls:{lecture:'교수 강의',discussion:'토론·발표',practice:'실습·실험',project:'팀프로젝트',online:'온라인',mentoring:'1대1 멘토링'},
+  adm:{'visa-admin':'비자·출입국','grade-system':'성적 평가','course-register':'수강신청','multilang-info':'다국어 정보','scholarship-proc':'장학금 절차','complaint-channel':'건의 채널'},
+  dif:{'lang-barrier':'🌫️ 언어 소통','homesick':'🌧️ 고향 그리움','finance':'⛈️ 경제적 어려움','study-load':'🌪️ 학업 압박','loneliness':'🌑 외로움','culture-gap':'🌬️ 문화 적응','discrimination':'🌩️ 차별·편견','future-anxiety':'🌀 미래 불안'},
+  dc:{'culture-diff':'문화적 차이','language':'언어 부족','institution':'제도 미흡','economic':'경제 구조','mental':'심리·정체성','info-lack':'정보 접근성'},
+  cu:{hierarchy:'나이·위계',indirect:'간접 소통',drinking:'음주 문화',timepressure:'빠른 속도',food:'한국 음식',appearance:'외모 기준',collectivism:'집단주의',none:'없음'},
+  ag:{'kr-job':'한국 취업','home-job':'본국 취업','graduate':'대학원','third-country':'제3국','startup':'창업','undecided':'미결정'},
+  jf:{airline:'항공·관광',hotel:'호텔·서비스',it:'IT·기술',trade:'무역·유통','edu-trans':'교육·번역',health:'의료·복지',gov:'공공기관',media:'미디어'},
+  sk:{topik:'TOPIK',internship:'인턴십',resume:'이력서·면접',network:'기업 네트워크','visa-info':'취업 비자','major-cert':'전공 자격증'},
+  imp:{'career-change':'진로 변화','identity-grow':'정체성 성장','network-build':'글로벌 인맥','lang-skill':'언어 향상','family-pride':'가족 기여','uncertain':'모르겠음'},
+  pgm:{topik:'TOPIK 지원',counseling:'생활 상담',buddy:'버디 매칭',internship:'인턴십',kculture:'K-문화체험',jobfair:'취업 박람회',mentoring:'선배 멘토링',startup:'창업 지원'},
+  urg:{'admin-improve':'행정 개선','multilang':'다국어 서비스','counseling':'상담 강화','living-cost':'생활비 지원','class-quality':'수업 질 향상','community':'커뮤니티 활성화','multilang-understanding':'다문화 이해 교육','mentoring-system':'멘토링 시스템','career-support':'취업지원 전담','dorm-improve':'기숙사 개선','opinion-channel':'의견 반영 채널'},
+  rp:{yes:'✅ 참여함',no:'❌ 미참여',unknown:'🤔 몰랐음'},
+  rpr:{'buddy-match':'버디 매칭','kpop-club':'K-POP 클럽','job-training':'직무교육','culture-exp':'문화체험','photo-studio':'포토스튜디오','mosaic':'모자이크','forum':'간담회','etc-prog':'기타'},
+  rn:{'didnt-know':'정보 없음','schedule-conflict':'시간 불일치','lang-barrier':'언어 부담','not-interested':'관심 없음','too-busy':'학업·알바','other-reason':'기타'},
+  rw:{'buddy-match':'버디 매칭','job-training':'직무교육','internship':'인턴십','culture-exp':'문화체험','kpop-club':'K-POP','topik-prep':'TOPIK','mentor':'멘토링','startup':'창업교육'},
+  rd:{'real-company':'기업 탐방','resume-interview':'이력서·면접','it-digital':'IT·디지털','korean-biz':'한국 비즈니스','industry-spec':'전공 맞춤','network-event':'네트워킹'},
+  ri41:{'more-frequent':'더 자주 개최','better-promotion':'홍보 개선','multilang-guide':'다국어 안내','job-internship':'취업·인턴 연계','kr-exchange':'한국생 교류','online-option':'온라인 참여','certificate':'수료증 발급','evening-weekend':'저녁/주말 시간'},
+  krr:{kwave:'K-콘텐츠',language:'한국어 습득','career-kr':'한국 취업','edu-quality':'교육 수준',scholarship:'장학금',safety:'안전 환경','global-exp':'글로벌','family-rec':'가족·지인'},
+  cwr:{'cw-scholarship':'CWU 장학금','cw-recommend':'선배·지인 추천','cw-dept':'원하는 전공','cw-tuition':'합리적 학비','cw-agent':'유학원 소개','cw-environment':'홍성 환경','cw-reputation':'학교 평판','cw-chance':'합격 가능성'},
+  bl:{b1:'"유학생은 경제적 어려움으로 알바를 가장 원한다"',b2:'"유학생은 학업보다 한국 생활 체험에 더 관심 있다"',b3:'"유학생은 졸업 후 본국으로 돌아간다"',b4:'"유학생의 최대 어려움은 언어(한국어)이다"',b5:'"유학생은 한국 학생들과 잘 어울리지 못한다"'}
+};
+
+function gl(c,k){return(L[c]&&L[c][k])||k;}
+function sd(o){return Object.keys(o||{}).sort(function(a,b){return(o[b]||0)-(o[a]||0);});}
+function dc2(id){if(CI[id]){CI[id].destroy();delete CI[id];}}
+function escH(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function mkD(id,data,cat){dc2(id);var ctx=document.getElementById(id);if(!ctx||!data)return;var k=sd(data);CI[id]=new Chart(ctx,{type:'doughnut',data:{labels:k.map(function(x){return gl(cat,x);}),datasets:[{data:k.map(function(x){return data[x];}),backgroundColor:PAL,borderWidth:0,hoverOffset:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#8899bb',font:{size:10},boxWidth:9,padding:5}},tooltip:{callbacks:{label:function(c){var t=c.dataset.data.reduce(function(a,b){return a+b;},0);return ' '+c.label+': '+c.raw+'명 ('+Math.round(c.raw/t*100)+'%)';}}}}}});}
+
+function mkBH(id,data,cat,color){dc2(id);var ctx=document.getElementById(id);if(!ctx||!data)return;var k=sd(data).slice(0,10);CI[id]=new Chart(ctx,{type:'bar',data:{labels:k.map(function(x){return gl(cat,x);}),datasets:[{data:k.map(function(x){return data[x];}),backgroundColor:color||PAL,borderRadius:5,borderSkipped:false}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return ' '+c.raw+'명';}}}},scales:{x:{grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'#8899bb',font:{size:10}}},y:{grid:{display:false},ticks:{color:'#e2e8f0',font:{size:10}}}}}});}
+
+function mkBV(id,data,cat,color){dc2(id);var ctx=document.getElementById(id);if(!ctx||!data)return;var k=sd(data).slice(0,8);CI[id]=new Chart(ctx,{type:'bar',data:{labels:k.map(function(x){return gl(cat,x);}),datasets:[{data:k.map(function(x){return data[x];}),backgroundColor:color||'#60a5fa',borderRadius:5,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return ' '+c.raw+'명';}}}},scales:{x:{grid:{display:false},ticks:{color:'#8899bb',font:{size:9},maxRotation:30}},y:{grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'#8899bb',font:{size:10}}}}}});}
+
+function mkLine(id,labs,vals){dc2(id);var ctx=document.getElementById(id);if(!ctx)return;CI[id]=new Chart(ctx,{type:'line',data:{labels:labs,datasets:[{data:vals,borderColor:'#60a5fa',backgroundColor:'rgba(96,165,250,.1)',fill:true,tension:.4,pointBackgroundColor:'#60a5fa',pointRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:'#8899bb',font:{size:9},maxRotation:45}},y:{grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'#8899bb',font:{size:10}}}}}});}
+
+function mkRadar(id,labs,vals){dc2(id);var ctx=document.getElementById(id);if(!ctx)return;CI[id]=new Chart(ctx,{type:'radar',data:{labels:labs,datasets:[{data:vals,backgroundColor:'rgba(96,165,250,.15)',borderColor:'#60a5fa',pointBackgroundColor:'#60a5fa',pointRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{r:{min:0,max:5,ticks:{stepSize:1,color:'#8899bb',font:{size:9},backdropColor:'transparent'},grid:{color:'rgba(255,255,255,.08)'},angleLines:{color:'rgba(255,255,255,.08)'},pointLabels:{color:'#e2e8f0',font:{size:10}}}}}});}
+
+function mkNpsH(id,distrib){dc2(id);var ctx=document.getElementById(id);if(!ctx)return;var labs=['0','1','2','3','4','5','6','7','8','9','10'];CI[id]=new Chart(ctx,{type:'bar',data:{labels:labs,datasets:[{data:labs.map(function(k){return distrib[k]||0;}),backgroundColor:labs.map(function(k){var v=+k;return v>=9?'#34d399':v>=7?'#fbbf24':'#f87171';}),borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:'#8899bb',font:{size:9}}},y:{grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'#8899bb',font:{size:9}}}}}});}
+
+function mkMulti(id,r1,r2,r3,cat){dc2(id);var ctx=document.getElementById(id);if(!ctx)return;var all={};[r1,r2,r3].forEach(function(r){Object.keys(r||{}).forEach(function(k){all[k]=true;});});var k=Object.keys(all).sort(function(a,b){return(r1[b]||0)-(r1[a]||0);}).slice(0,7);CI[id]=new Chart(ctx,{type:'bar',data:{labels:k.map(function(x){return gl(cat,x);}),datasets:[{label:'1순위',data:k.map(function(x){return r1[x]||0;}),backgroundColor:'#fbbf24',borderRadius:4,borderSkipped:false},{label:'2순위',data:k.map(function(x){return r2[x]||0;}),backgroundColor:'rgba(251,191,36,.5)',borderRadius:4,borderSkipped:false},{label:'3순위',data:k.map(function(x){return r3[x]||0;}),backgroundColor:'rgba(251,191,36,.2)',borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8899bb',font:{size:10}}}},scales:{x:{grid:{display:false},ticks:{color:'#8899bb',font:{size:9},maxRotation:30}},y:{grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'#8899bb',font:{size:9}}}}}});}
+
+function mkRank(elId,data,cat){var el=document.getElementById(elId);if(!el||!data)return;var k=sd(data).slice(0,6);var max=k.length?data[k[0]]:1;var nc=['r1','r2','r3','r4','r5','r6'];var fc=['#fbbf24','#6b7280','#92400e','#60a5fa','#a78bfa','#34d399'];el.innerHTML=k.map(function(x,i){var pct=Math.round(data[x]/max*100);return '<div class="rr"><div class="rn '+nc[i]+'">'+(i+1)+'</div><div class="ri"><div class="rlbl">'+gl(cat,x)+'</div><div class="rbar"><div class="rfill" style="width:'+pct+'%;background:'+fc[i]+'"></div></div></div><div class="rcnt">'+data[x]+'명</div></div>';}).join('');}
+
+function mkWeather(data,total){var el=document.getElementById('wg');if(!el||!data)return;var wm={'lang-barrier':'🌫️','homesick':'🌧️','finance':'⛈️','study-load':'🌪️','loneliness':'🌑','culture-gap':'🌬️','discrimination':'🌩️','future-anxiety':'🌀'};var k=sd(data).slice(0,8);el.innerHTML=k.map(function(x){var pct=total?Math.round(data[x]/total*100):0;var lbl=gl('dif',x).replace(/[🌫️🌧️⛈️🌪️🌑🌬️🌩️🌀]\s*/g,'').trim();return '<div class="wi"><span class="we">'+(wm[x]||'❓')+'</span><span class="wl">'+lbl+'</span><span class="wp">'+pct+'%</span></div>';}).join('');}
+
+function mkLifeGrid(la){var el=document.getElementById('life-grid');if(!el||!la)return;var items=[{k:'dorm',e:'🛏️',l:'기숙사'},{k:'food',e:'🍚',l:'식사'},{k:'transport',e:'🚌',l:'교통'},{k:'safety',e:'🛡️',l:'안전'},{k:'support',e:'🏫',l:'학교지원'}];el.innerHTML=items.map(function(i){var v=la[i.k]||0;var color=v>=4?'var(--green)':v>=3?'var(--accent)':'var(--red)';return '<div class="life-item"><span class="life-emoji">'+i.e+'</span><div class="life-val" style="color:'+color+'">'+v+'</div><div class="life-lbl">'+i.l+'</div></div>';}).join('');}
+
+function mkLifeBar(la){dc2('c-life-bar');var ctx=document.getElementById('c-life-bar');if(!ctx||!la)return;var labs=['기숙사','식사·식당','교통·이동','안전·치안','학교 지원'];var vals=[la.dorm||0,la.food||0,la.transport||0,la.safety||0,la.support||0];var colors=vals.map(function(v){return v>=4?'#34d399':v>=3?'#fbbf24':'#f87171';});CI['c-life-bar']=new Chart(ctx,{type:'bar',data:{labels:labs,datasets:[{data:vals,backgroundColor:colors,borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return ' 평균 '+c.raw+'점 (5점 만점)';}}},datalabels:{display:false}},scales:{x:{grid:{display:false},ticks:{color:'#8899bb',font:{size:11}}},y:{max:5,grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'#8899bb',font:{size:10},callback:function(v){return v+'점';}}}}}});}
+
+function mkJobTrainBar(id,data){dc2(id);var ctx=document.getElementById(id);if(!ctx||!data)return;CI[id]=new Chart(ctx,{type:'bar',data:{labels:['한국어 능력','실무 기술·지식','취업 자신감'],datasets:[{data:[data.lang||0,data.skill||0,data.confidence||0],backgroundColor:['#60a5fa','#34d399','#fbbf24'],borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return ' 평균 '+c.raw+'점 (5점 만점)';}}},},scales:{x:{grid:{display:false},ticks:{color:'#8899bb',font:{size:11}}},y:{max:5,grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'#8899bb',font:{size:10},callback:function(v){return v+'점';}}}}}});}
+
+function mkBeliefStacks(bs){var el=document.getElementById('bl-stacks');if(!el||!bs)return;el.innerHTML=['b1','b2','b3','b4','b5'].map(function(bk){var s=bs[bk]||{};var t=(s.agree||0)+(s.partial||0)+(s.disagree||0)||1;var ap=Math.round((s.agree||0)/t*100),pp=Math.round((s.partial||0)/t*100),dp=100-ap-pp;return '<div><div class="slbl">'+L.bl[bk]+'</div><div class="sbar"><div class="sseg sa" style="width:'+ap+'%">'+ap+'%</div><div class="sseg spt" style="width:'+pp+'%">'+pp+'%</div><div class="sseg sd" style="width:'+dp+'%">'+dp+'%</div></div></div>';}).join('');}
+
+function mkBeliefAgree(bs){dc2('c-bla');var ctx=document.getElementById('c-bla');if(!ctx||!bs)return;var k=['b1','b2','b3','b4','b5'];var agree=k.map(function(bk){var s=bs[bk]||{};var t=(s.agree||0)+(s.partial||0)+(s.disagree||0)||1;return Math.round((s.agree||0)/t*100);});CI['c-bla']=new Chart(ctx,{type:'bar',data:{labels:['알바 편견','학업 무관심','본국 귀환','언어 어려움','교류 어려움'],datasets:[{data:agree,backgroundColor:['#ef4444','#f97316','#eab308','#3b82f6','#8b5cf6'],borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return ' 동의율: '+c.raw+'%';}}}},scales:{x:{grid:{display:false},ticks:{color:'#8899bb',font:{size:10}}},y:{max:100,grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'#8899bb',font:{size:10},callback:function(v){return v+'%';}}}}}})}
+
+function mkInsights(bs,total){var el=document.getElementById('bl-ins');if(!el||!bs||!total)return;var ins=[];var b1=bs.b1||{},b1t=(b1.agree||0)+(b1.partial||0)+(b1.disagree||0)||1;ins.push({t:'편견① 알바 선호',txt:Math.round((b1.disagree||0)/b1t*100)+'%가 반대 — 학업 집중이나 다른 동기가 더 많음.'});var b3=bs.b3||{},b3t=(b3.agree||0)+(b3.partial||0)+(b3.disagree||0)||1;ins.push({t:'편견③ 졸업 후 귀국',txt:'동의 '+Math.round((b3.agree||0)/b3t*100)+'% — 한국 취업·제3국 목표가 많음.'});var b4=bs.b4||{},b4t=(b4.agree||0)+(b4.partial||0)+(b4.disagree||0)||1;ins.push({t:'편견④ 언어가 최대 어려움',txt:'동의율 '+Math.round((b4.agree||0)/b4t*100)+'% — 언어 외 경제·외로움·문화도 복합적.'});var b5=bs.b5||{},b5t=(b5.agree||0)+(b5.partial||0)+(b5.disagree||0)||1;ins.push({t:'편견⑤ 한국생과 교류 어려움',txt:'동의율 '+Math.round((b5.agree||0)/b5t*100)+'% — 실제 교류 희망 여부와 교차 분석 권장.'});el.innerHTML=ins.map(function(x){return '<div class="ins"><div class="ins-ttl">'+x.t+'</div><div class="ins-txt">'+x.txt+'</div></div>';}).join('');}
+
+/* ══ 주관식 뷰어 ══ */
+var QF='all',QS='',QP={},QPP=15;
+var QDEFS=[
+  {key:'q11',label:'Q11',title:'CWU를 선택한 솔직한 이유'},
+  {key:'q17',label:'Q17',title:'교수님·수업에 대한 솔직한 의견'},
+  {key:'q22',label:'Q22',title:'한국 문화와 본국 문화의 차이 경험'},
+  {key:'q26',label:'Q26',title:'5년 후 나의 모습 (비전)'},
+  {key:'q29',label:'Q29',title:'CWU만이 잘 해줄 수 있는 것 제안'},
+  {key:'q34',label:'Q34',title:'학교·교수님·직원들에게 하고 싶은 말'},
+  {key:'q36',label:'Q36',title:'NPS 점수를 준 이유'},
+  {key:'q40',label:'Q40',title:'RISE 프로그램 기억에 남는 경험'},
+  {key:'q45',label:'Q45',title:'취업·진로를 위해 필요한 교육·지원'}
+];
+
+function qfSet(key,btn){
+  QF=key;QP={};QS='';
+  document.getElementById('qsearch').value='';
+  document.querySelectorAll('.qf-btn').forEach(function(b){b.classList.remove('on');});
+  btn.classList.add('on');
+  renderQW();
+}
+
+document.getElementById('qsearch').addEventListener('input',function(e){
+  QS=e.target.value.trim().toLowerCase();QP={};QF='all';
+  document.querySelectorAll('.qf-btn').forEach(function(b){b.classList.remove('on');});
+  document.querySelector('.qf-btn').classList.add('on');
+  renderQW();
+});
+
+function renderQW(){
+  var el=document.getElementById('qlist');if(!el)return;
+  if(!GDATA){el.innerHTML='<div class="ans-empty">데이터를 불러오는 중입니다...</div>';return;}
+  if(!GDATA.openResponses){el.innerHTML='<div class="ans-empty">⚠️ 주관식 응답 데이터(openResponses)가 없습니다.<br><span style="font-size:10px;color:var(--muted)">GAS 응답 JSON에 openResponses 키를 확인하세요.</span></div>';return;}
+  var defs=QF==='all'?QDEFS:QDEFS.filter(function(d){return d.key===QF;});
+  el.innerHTML=defs.map(function(def){
+    var all=(GDATA.openResponses[def.key]||[]).filter(function(r){
+      if(!r||!r.text||!r.text.trim())return false;
+      if(QS)return r.text.toLowerCase().indexOf(QS)>=0;
+      return true;
+    });
+    var pg=QP[def.key]||0;
+    var total=all.length;
+    var paged=all.slice(pg*QPP,(pg+1)*QPP);
+    var maxPg=Math.max(0,Math.ceil(total/QPP)-1);
+    var bodyHtml='';
+    if(total===0){
+      bodyHtml='<div class="ans-empty">'+(QS?'검색 결과가 없습니다.':'응답이 없습니다.')+'</div>';
+    } else {
+      bodyHtml='<div class="ans-list">'+paged.map(function(r){
+        var flag='<div class="ans-flag">';
+        if(r.nat)flag+='<span>🌍 '+escH(r.nat)+'</span>';
+        if(r.nps!==undefined&&r.nps!=='')flag+='<span>⭐ NPS '+r.nps+'점</span>';
+        if(r.lang)flag+='<span>🌐 '+escH(r.lang)+'</span>';
+        flag+='</div>';
+        return '<div class="ans-item">'+escH(r.text)+flag+'</div>';
+      }).join('')+'</div>';
+      if(total>QPP){
+        bodyHtml+='<div class="qpager"><button onclick="qwPg(\''+def.key+'\','+(pg-1)+',event)" '+(pg<=0?'disabled':'')+'>◀ 이전</button><span>'+(pg+1)+' / '+(maxPg+1)+' 페이지 · 총 '+total+'개</span><button onclick="qwPg(\''+def.key+'\','+(pg+1)+',event)" '+(pg>=maxPg?'disabled':'')+'>다음 ▶</button></div>';
+      }
+    }
+    var isOpen=(QF!=='all'||QS!='');
+    return '<div class="qitem'+(isOpen?' open':'')+'" id="qw-'+def.key+'">'
+      +'<div class="qitem-hdr" onclick="qwTog(\''+def.key+'\')">'
+      +'<div><div class="qitem-q">'+def.label+' · '+def.title+'</div><div class="qitem-meta">주관식 서술형</div></div>'
+      +'<div style="display:flex;align-items:center"><div class="qitem-cnt">'+total+'개</div><div class="qitem-arr">▼</div></div>'
+      +'</div>'
+      +'<div class="qitem-body">'+bodyHtml+'</div>'
+      +'</div>';
+  }).join('');
+}
+
+function qwTog(key){var el=document.getElementById('qw-'+key);if(el)el.classList.toggle('open');}
+function qwPg(key,pg,e){
+  e.stopPropagation();
+  if(!GDATA||!GDATA.openResponses)return;
+  var all=(GDATA.openResponses[key]||[]).filter(function(r){return r&&r.text&&r.text.trim();});
+  var max=Math.max(0,Math.ceil(all.length/QPP)-1);
+  if(pg<0||pg>max)return;
+  QP[key]=pg;renderQW();
+  var el=document.getElementById('qw-'+key);if(el)el.classList.add('open');
+}
+
+/* ══ 탭 전환 ══ */
+function sw(name,el){
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+  document.querySelectorAll('.tc').forEach(function(t){t.classList.remove('active');});
+  el.classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+  if(name==='wr')renderQW();
+}
+
+/* ══ 렌더링 ══ */
+function render(d){
+  if(!d||!d.total){document.getElementById('lov').style.display='none';return;}
+  GDATA=d;
+  // KPI
+  document.getElementById('k-total').textContent=d.total+'명';
+  document.getElementById('k-today').textContent=d.todayCount+'명';
+  document.getElementById('k-7d').textContent=d.recent7days+'명';
+  document.getElementById('k-nps-avg').textContent=(d.npsAvg!=null&&d.npsAvg!=='')?d.npsAvg:'—';
+  var rT=Object.values(d.riseParticip||{}).reduce(function(a,b){return a+b;},0);
+  document.getElementById('k-rise').textContent=rT?Math.round((d.riseParticip.yes||0)/rT*100)+'%':'—';
+  document.getElementById('k-comm').textContent=(d.commAvg!=null&&d.commAvg!=='')?d.commAvg:'—';
+  document.getElementById('k-rise-sat').textContent=(d.riseSatAvg!=null&&d.riseSatAvg!=='')?d.riseSatAvg:'—';
+  document.getElementById('k-expect').textContent=(d.expectReal!=null&&d.expectReal!=='')?d.expectReal:'—';
+  document.getElementById('nps-big').textContent=(d.npsAvg!=null&&d.npsAvg!=='')?d.npsAvg:'—';
+  document.getElementById('nps-pr').textContent=(d.npsPromoters||0)+'명';
+  document.getElementById('nps-pa').textContent=(d.npsPassives||0)+'명';
+  document.getElementById('nps-de').textContent=(d.npsDetractors||0)+'명';
+  var now=new Date();
+  document.getElementById('upd').textContent=(now.getMonth()+1)+'/'+now.getDate()+' '+now.getHours()+':'+String(now.getMinutes()).padStart(2,'0')+' 업데이트';
+  // 기대vs현실 게이지
+  if(d.expectReal){document.getElementById('expect-real-val').textContent=d.expectReal;document.getElementById('expect-real-fill').style.width=Math.round(d.expectReal/10*100)+'%';}
+  // 개요
+  mkD('c-nat',d.nationality,'nat');mkD('c-dep',d.department,'dep');
+  mkBV('c-enr',d.enrollment,'enr','#a78bfa');mkD('c-vis',d.visa,'vis');
+  mkBV('c-bud',d.budget,'bud','#fbbf24');mkD('c-sch',d.scholarship,'sch');
+  mkBH('c-pt',d.parttime,'pt','#34d399');mkD('c-lan',d.language,'lan');
+  mkD('c-ani',d.animalType,'ani');mkNpsH('c-comm-dist',d.commDistrib||{});
+  mkD('c-comp-sm',d.comprehension,'comp');
+  mkNpsH('c-nps',d.npsDistrib||{});
+  var tlK=Object.keys(d.timeline||{}).sort().slice(-14);
+  mkLine('c-tl',tlK,tlK.map(function(k){return d.timeline[k];}));
+  // 학업
+  mkBH('c-comp',d.comprehension,'comp',['#34d399','#60a5fa','#fbbf24','#f87171']);
+  mkBH('c-prof',d.profType,'prof','#a78bfa');
+  mkBH('c-cls',d.classStyle,'cls',PAL);
+  mkNpsH('c-comm2',d.commDistrib||{});
+  mkRank('rl-adm',d.adminRank1,'adm');
+  mkMulti('c-adm-m',d.adminRank1||{},d.adminRank2||{},d.adminRank3||{},'adm');
+  // 생활
+  mkWeather(d.diffRank1,d.total);mkBH('c-dc',d.diffCause,'dc','#f87171');
+  mkMulti('c-dif-m',d.diffRank1||{},d.diffRank2||{},d.diffRank3||{},'dif');
+  mkBH('c-cult',d.cultureAdapt,'cu',PAL);
+  mkLifeGrid(d.lifeAvg);
+  var la=d.lifeAvg||{};
+  mkRadar('c-radar',['기숙사','식사','교통','안전','학교지원'],[la.dorm||0,la.food||0,la.transport||0,la.safety||0,la.support||0]);
+  mkLifeBar(d.lifeAvg);
+  // 진로
+  mkBH('c-krr',d.koreanReason,'krr',PAL);mkBH('c-cwr',d.cwuReason,'cwr',PAL);
+  mkD('c-ag',d.afterGrad,'ag');mkBH('c-jf',d.jobField,'jf',PAL);
+  mkRank('rl-sk',d.skillNeed,'sk');mkBH('c-sk-bar',d.skillNeed,'sk',PAL);
+  mkD('c-imp',d.lifeImpact,'imp');mkBH('c-pgm',d.programWant,'pgm',PAL);
+  mkBH('c-urg',d.urgentChange,'urg','#f87171');
+  // RISE
+  mkD('c-rp',d.riseParticip,'rp');mkNpsH('c-rs',d.riseSatDistrib||{});
+  mkBH('c-rpr',d.risePrograms,'rpr',PAL);mkBH('c-ri41',d.riseImprove41,'ri41','#f472b6');
+  mkBH('c-rd',d.riseImprove,'rd','#2dd4bf');mkJobTrainBar('c-ri42',d.jobTrainHelp);
+  mkBH('c-rn',d.riseNoReason,'rn','#f87171');mkBH('c-rw',d.riseWant,'rw',PAL);
+  // 편견
+  if(d.beliefStats){mkBeliefStacks(d.beliefStats);mkBeliefAgree(d.beliefStats);mkInsights(d.beliefStats,d.total);}
+  document.getElementById('lov').style.display='none';
+  // 주관식 탭이 열려 있으면 즉시 렌더
+  if(document.getElementById('tab-wr').classList.contains('active'))renderQW();
+}
+
+function load(){
+  document.getElementById('lov').style.display='flex';
+  fetch(GAS+'?action=stats')
+    .then(function(r){return r.json();})
+    .then(function(d){render(d);})
+    .catch(function(e){console.error(e);document.getElementById('lov').style.display='none';});
+}
+window.onload=function(){load();};
+</script>
+</body>
+</html>
